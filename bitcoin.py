@@ -1,6 +1,5 @@
 
-""" https://coincodex.com/crypto/bitcoin/historical-data/ 
-    https://coincodex.com/crypto/ethereum/historical-data/ """
+""" https://coincodex.com/crypto/bitcoin/historical-data/ """
 
 
 import pandas as pd
@@ -179,7 +178,7 @@ y_pred_dates.append(y_pred_date_)
 print("Date next ATH:", y_pred_date_.date())
 
 plt.figure(figsize=(14, 7))
-plt.scatter(df_halving.index[:-1], df_ath.index, color='black', label='Price data')
+plt.scatter(df_halving.index[:-1], df_ath.index, color='black', label='Data')
 plt.scatter(df_halving.index[-1], y_pred_date_, color='red', label='Prediction')
 plt.plot(df_halving.index, y_pred_dates, '--', label=f'Linear model (R² = {r2:.3f})')
 plt.grid()
