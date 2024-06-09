@@ -12,48 +12,38 @@ from scipy.optimize import curve_fit
 import warnings
 warnings.filterwarnings("ignore")
 
-coin = "bitcoin"
 
-if coin == "bitcoin":
-    df = pd.read_csv("bitcoin_2010-07-17_2024-06-08.csv", delimiter=",")
-elif coin == "ethereum":
-    df = pd.read_csv("ethereum_2015-08-07_2024-06-08.csv", delimiter=",")
+df = pd.read_csv("bitcoin_2010-07-17_2024-06-08.csv", delimiter=",")
 df['date'] = pd.to_datetime(df['End'], format='%Y-%m-%d')
 df['year'] = df['date'].dt.year
 df = df.sort_values(by='date')
 df = df.set_index(df['date'])
 del df['Start'], df['End'], df['date'], df['Open'], df['High'], df['Low']
 
-if coin == "bitcoin":
-    all_dates = pd.date_range(start='2009-01-01', end='2010-07-17')
-    missing_dates_df = pd.DataFrame(index=all_dates, columns=df.columns)
-    df = pd.concat([missing_dates_df, df])
+all_dates = pd.date_range(start='2009-01-01', end='2010-07-17')
+missing_dates_df = pd.DataFrame(index=all_dates, columns=df.columns)
+df = pd.concat([missing_dates_df, df])
 df['time'] = range(len(df))
 
-if coin == "bitcoin":
-    df = df['2010-07-18':]
+df = df['2010-07-18':]
 
 
 df['Close'].plot(figsize=(14, 7), color='black')
 plt.yscale('log')
 plt.xlabel('Date')
-plt.ylabel('Prix Bitcoin $ (échelle log)')
+plt.ylabel('Price Bitcoin $ (log scale)')
 plt.grid()
 plt.show()
 
-if coin == "bitcoin":
-    dates_halving = ['2012-11-28', '2016-07-09', '2020-05-11', '2024-04-20']
-    dates_ath = ['2011-06-09', '2013-12-05', '2017-12-17', '2021-11-09']
-    dates_low = ['2011-11-19', '2015-08-15', '2018-12-15', '2022-11-10']
-elif coin == "ethereum":
-    dates_ath = ['2018-01-14', '2021-11-09']
-    dates_low = ['2018-12-15', '2022-11-10']
+dates_halving = ['2012-11-28', '2016-07-09', '2020-05-11', '2024-04-20']
+dates_ath = ['2011-06-09', '2013-12-05', '2017-12-17', '2021-11-09']
+dates_low = ['2011-11-19', '2015-08-15', '2018-12-15', '2022-11-10']
 
 
 df_ath = df.loc[dates_ath]
 df_low = df.loc[dates_low ]
 
-""" ----- Relation Prix - Temps en échelle log-linéaire ----- """
+""" ----- Relation Price-Time in scale log-linear ----- """
 
 X = df['time']
 y = np.log(df['Close'])
@@ -79,19 +69,19 @@ y_pred_low = log_law(X, *popt_low)
 r2_low = r2_score(y_low, log_law(X_low, *popt_low))
 print("R² low:", round(r2_low,3))
 
-print(f"Modèle: P = {format(np.exp(popt[1]),'.2e')} (t-{round(popt[2],2)})^{round(popt[0],3)}")
-print(f"Modèle ATH: P = {format(np.exp(popt_ath[1]),'.2e')} (t-{round(popt_ath[2],2)})^{round(popt_ath[0],3)}")
-print(f"Modèle LOW: P = {format(np.exp(popt_low[1]),'.2e')} (t-{round(popt_low[2],2)})^{round(popt_low[0],3)}")
+print(f"Model: P = {format(np.exp(popt[1]),'.2e')} (t-{round(popt[2],2)})^{round(popt[0],3)}")
+print(f"Model ATH: P = {format(np.exp(popt_ath[1]),'.2e')} (t-{round(popt_ath[2],2)})^{round(popt_ath[0],3)}")
+print(f"Model Low: P = {format(np.exp(popt_low[1]),'.2e')} (t-{round(popt_low[2],2)})^{round(popt_low[0],3)}")
 
 
 plt.figure(figsize=(14, 7))
-plt.plot(df.index, df['Close'], label='Données réelles', color='black')
-plt.plot(df.index, np.exp(y_pred), label=f'Modèle puissance (R² = {r2:.3f})', color='green')
-plt.plot(df.index, np.exp(y_pred_ath), label=f'Modèle puissance ATH (R² = {r2_ath:.3f})', color='red')
-plt.plot(df.index, np.exp(y_pred_low), label=f'Modèle puissance LOW (R² = {r2_low:.3f})', color='purple')
+plt.plot(df.index, df['Close'], label='Price data', color='black')
+plt.plot(df.index, np.exp(y_pred), label=f'Power model (R² = {r2:.3f})', color='green')
+plt.plot(df.index, np.exp(y_pred_ath), label=f'Power model ATH (R² = {r2_ath:.3f})', color='red')
+plt.plot(df.index, np.exp(y_pred_low), label=f'Power model Low (R² = {r2_low:.3f})', color='purple')
 #plt.plot(df.index, y_pred_log, label=f'Modèle logarithmique (R² = {r2_log:.2f})', color='green')
 plt.xlabel('Date')
-plt.ylabel('Prix du Bitcoin (échelle log)')
+plt.ylabel('Price of Bitcoin (log scale)')
 plt.legend()
 plt.grid()
 plt.yscale("log")
@@ -106,7 +96,7 @@ t_target = ((np.log(P_target)-popt[2])/popt[0])**(1/popt[1])
 targetDate = startDate + pd.Timedelta(days=int(t_target))
 print("Date:", targetDate.date())"""
 
-targetdate = '2025-12-01'
+targetdate = '2026-02-01'
 targetDate = pd.to_datetime(targetdate, format='%Y-%m-%d')
 t_target = (targetDate-startDate).days
 P_target_ath = int(np.exp(log_law(t_target, *popt_ath)))
@@ -117,13 +107,13 @@ print("Prix High:", P_target_ath)
 date_range = pd.date_range(start=df.index[0], end=targetDate, freq='D')
 
 plt.figure(figsize=(14, 7))
-plt.plot(df.index, df['Close'], label='Données réelles', color='black')
+plt.plot(df.index, df['Close'], label='Price data', color='black')
 plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt)), label=f'Modèle puissance (R² = {r2:.3f})', color='green')
 plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt_ath)), label=f'Modèle puissance ATH (R² = {r2_ath:.3f})', color='red')
-plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt_low)), label=f'Modèle puissance LOW (R² = {r2_low:.3f})', color='purple')
+plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt_low)), label=f'Modèle puissance Low (R² = {r2_low:.3f})', color='purple')
 #plt.plot(df.index, y_pred_log, label=f'Modèle logarithmique (R² = {r2_log:.2f})', color='green')
 plt.xlabel('Date')
-plt.ylabel('Prix du Bitcoin (échelle log)')
+plt.ylabel('Price of Bitcoin (log scale)')
 plt.axvline(targetDate, linestyle='--', color='blue')
 plt.scatter(targetDate, P_target_ath, color='red')
 plt.scatter(targetDate, P_target_low, color='purple')
@@ -133,7 +123,7 @@ plt.yscale("log")
 plt.show()
 
 
-""" ----- Relation Prix - temps en échelle log-log ----- """
+""" ----- Relation Price-Time in scale log-log ----- """
 
 
 X = np.log(df['time']-popt[2])/np.log(10)
@@ -158,11 +148,11 @@ r2_low = r2_score(y_low, linear_law(X_low, *popt_low))
 
 plt.figure(figsize=(14, 7))
 plt.plot(X, y)
-plt.plot(X, y_pred, label=f'Modèle linéaire (R² = {r2:.3f})', color='green')
-plt.plot(X, y_pred_ath, label=f'Modèle linéaire ATH (R² = {r2_ath:.3f})', color='red')
-plt.plot(X, y_pred_low, label=f'Modèle linéaire LOW (R² = {r2_low:.3f})', color='purple')
-plt.xlabel('$log_{10}$ (nb jours)')
-plt.ylabel('$log_{10}$ (prix Bitcoin)')
+plt.plot(X, y_pred, label=f'Linear model (R² = {r2:.3f})', color='green')
+plt.plot(X, y_pred_ath, label=f'Linear model ATH (R² = {r2_ath:.3f})', color='red')
+plt.plot(X, y_pred_low, label=f'Linear model Low (R² = {r2_low:.3f})', color='purple')
+plt.xlabel('$log_{10}$ (nb days)')
+plt.ylabel('$log_{10}$ (price Bitcoin)')
 plt.grid()
 plt.legend()
 plt.show()
@@ -189,9 +179,9 @@ y_pred_dates.append(y_pred_date_)
 print("Date prochain ATH:", y_pred_date_.date())
 
 plt.figure(figsize=(14, 7))
-plt.scatter(df_halving.index[:-1], df_ath.index, color='black', label='Données réelles')
-plt.scatter(df_halving.index[-1], y_pred_date_, color='red', label='Prédiction')
-plt.plot(df_halving.index, y_pred_dates, '--', label=f'Modèle linéaire (R² = {r2:.3f})')
+plt.scatter(df_halving.index[:-1], df_ath.index, color='black', label='Price data')
+plt.scatter(df_halving.index[-1], y_pred_date_, color='red', label='Prediction')
+plt.plot(df_halving.index, y_pred_dates, '--', label=f'Linear model (R² = {r2:.3f})')
 plt.grid()
 plt.legend()
 plt.xlabel("Date halving")
