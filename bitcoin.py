@@ -59,15 +59,15 @@ def log_law(x, a, b, x0):
 popt, _ = curve_fit(log_law, X, y, maxfev=10000)
 y_pred = log_law(X, *popt)
 r2 = r2_score(y, y_pred)
-print("R²:", round(r2,3))
+print("R² model:", round(r2,3))
 popt_ath, _ = curve_fit(log_law, X_ath, y_ath, maxfev=10000)
 y_pred_ath = log_law(X, *popt_ath)
 r2_ath = r2_score(y_ath, log_law(X_ath, *popt_ath))
-print("R² ath:", round(r2_ath,3))
+print("R² model ATH:", round(r2_ath,3))
 popt_low, _ = curve_fit(log_law, X_low, y_low, maxfev=10000)
 y_pred_low = log_law(X, *popt_low)
 r2_low = r2_score(y_low, log_law(X_low, *popt_low))
-print("R² low:", round(r2_low,3))
+print("R² model Low:", round(r2_low,3))
 
 print(f"Model: P = {format(np.exp(popt[1]),'.2e')} (t-{round(popt[2],2)})^{round(popt[0],3)}")
 print(f"Model ATH: P = {format(np.exp(popt_ath[1]),'.2e')} (t-{round(popt_ath[2],2)})^{round(popt_ath[0],3)}")
@@ -96,21 +96,21 @@ t_target = ((np.log(P_target)-popt[2])/popt[0])**(1/popt[1])
 targetDate = startDate + pd.Timedelta(days=int(t_target))
 print("Date:", targetDate.date())"""
 
-targetdate = '2026-02-01'
+targetdate = '2025-12-01'
 targetDate = pd.to_datetime(targetdate, format='%Y-%m-%d')
 t_target = (targetDate-startDate).days
+P_target = int(np.exp(log_law(t_target, *popt)))
 P_target_ath = int(np.exp(log_law(t_target, *popt_ath)))
 P_target_low = int(np.exp(log_law(t_target, *popt_low)))
-print(f"Le {targetdate}, le prix sera compris de façon quasi certaine entre {P_target_low} et {P_target_ath}.")
-print("Prix High:", P_target_ath)
+print(f"On {targetdate}, the price will almost certainly be between {P_target_low} and {P_target_ath}, with a mean of {P_target}.")
 
 date_range = pd.date_range(start=df.index[0], end=targetDate, freq='D')
 
 plt.figure(figsize=(14, 7))
 plt.plot(df.index, df['Close'], label='Price data', color='black')
-plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt)), label=f'Modèle puissance (R² = {r2:.3f})', color='green')
-plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt_ath)), label=f'Modèle puissance ATH (R² = {r2_ath:.3f})', color='red')
-plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt_low)), label=f'Modèle puissance Low (R² = {r2_low:.3f})', color='purple')
+plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt)), label=f'Power model (R² = {r2:.3f})', color='green')
+plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt_ath)), label=f'Power model ATH (R² = {r2_ath:.3f})', color='red')
+plt.plot(date_range, np.exp(log_law(np.arange(len(date_range))+df['time'].iloc[0], *popt_low)), label=f'Power model Low (R² = {r2_low:.3f})', color='purple')
 #plt.plot(df.index, y_pred_log, label=f'Modèle logarithmique (R² = {r2_log:.2f})', color='green')
 plt.xlabel('Date')
 plt.ylabel('Price of Bitcoin (log scale)')
@@ -176,7 +176,7 @@ y_pred_dates = [startDate + pd.Timedelta(days=y_pred_) for y_pred_ in y_pred]
 y_pred_ = linear_law(df_halving.iloc[-1]['time'], *popt)
 y_pred_date_ = startDate + pd.Timedelta(days=y_pred_)
 y_pred_dates.append(y_pred_date_)
-print("Date prochain ATH:", y_pred_date_.date())
+print("Date next ATH:", y_pred_date_.date())
 
 plt.figure(figsize=(14, 7))
 plt.scatter(df_halving.index[:-1], df_ath.index, color='black', label='Price data')
