@@ -1,7 +1,6 @@
 
 """ https://coincodex.com/crypto/bitcoin/historical-data/ """
 
-
 import pandas as pd
 import numpy as np
 import datetime
@@ -95,7 +94,7 @@ t_target = ((np.log(P_target)-popt[2])/popt[0])**(1/popt[1])
 targetDate = startDate + pd.Timedelta(days=int(t_target))
 print("Date:", targetDate.date())"""
 
-targetdate = '2025-12-01'
+targetdate = '2025-11-01'
 targetDate = pd.to_datetime(targetdate, format='%Y-%m-%d')
 t_target = (targetDate-startDate).days
 P_target = int(np.exp(log_law(t_target, *popt)))
@@ -157,32 +156,11 @@ plt.legend()
 plt.show()
 
 
-""" ----- Relation Halving - ATH ----- """
-
+""" ----- Predictions date next ATH ----- """
 
 df_halving = df.loc[dates_halving]
-df_ath = df.loc[dates_ath][1:]
+df_ath = df.loc[dates_ath]
 
-X = df_halving[:-1]['time']
-y = df_ath['time']
-
-popt, _ = curve_fit(linear_law, X, y, maxfev=10000)
-y_pred = linear_law(X, *popt)
-r2 = r2_score(y, y_pred)
-#print("R²:", round(r2,3))
-
-y_pred_dates = [startDate + pd.Timedelta(days=y_pred_) for y_pred_ in y_pred]
-y_pred_ = linear_law(df_halving.iloc[-1]['time'], *popt)
-y_pred_date_ = startDate + pd.Timedelta(days=y_pred_)
-y_pred_dates.append(y_pred_date_)
-print("Date next ATH:", y_pred_date_.date())
-
-plt.figure(figsize=(14, 7))
-plt.scatter(df_halving.index[:-1], df_ath.index, color='black', label='Data')
-plt.scatter(df_halving.index[-1], y_pred_date_, color='red', label='Prediction')
-plt.plot(df_halving.index, y_pred_dates, '--', label=f'Linear model (R² = {r2:.3f})')
-plt.grid()
-plt.legend()
-plt.xlabel("Date halving")
-plt.ylabel("Date ATH")
-plt.show()
+y_pred_date_1 = df_ath.index[-1] + pd.Timedelta(days=np.mean(df_ath['time'][1:].diff()))
+y_pred_date_2 = df_halving.index[-1] + pd.Timedelta(days=np.mean(df_ath['time'][2:].to_numpy()-df_halving['time'][1:-1].to_numpy()))
+print(f"Dates next ATH: {y_pred_date_1.date()}; {y_pred_date_2.date()}.")
